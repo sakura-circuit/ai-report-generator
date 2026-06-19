@@ -2,5 +2,6 @@ from pydantic import BaseModel
 
 
 class ReportResponse(BaseModel):
-    rows: int
-    columns: list[str]
+    summary: str
+    insights: list[str]
+    recommendations: list[str]

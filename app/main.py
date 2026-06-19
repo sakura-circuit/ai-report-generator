@@ -1,10 +1,16 @@
+from app import config
+
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, HTTPException
 
-from app.csv_reader import analyze_csv
+
 from app.models import ReportResponse
+
+from app.ai_reporter import generate_report
+
+from app.file_reader import summarize_file
 
 app = FastAPI()
 
@@ -14,7 +20,12 @@ async def analyze_file(
     file: UploadFile = File(...),
 ):
 
-    with NamedTemporaryFile(delete=False, suffix=".csv") as temp_file:
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="Filename is missing")
+
+    suffix = Path(file.filename).suffix
+
+    with NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
 
         temp_file.write(await file.read())
 
@@ -22,9 +33,15 @@ async def analyze_file(
 
     try:
 
-        rows, columns = analyze_csv(csv_path)
+        dataset_summary = summarize_file(csv_path)
 
-        return ReportResponse(rows=rows, columns=columns)
+        report = generate_report(dataset_summary)
+
+        return ReportResponse(**report)
+
+    except ValueError as e:
+
+        raise HTTPException(status_code=400, detail=str(e))
 
     finally:
 
