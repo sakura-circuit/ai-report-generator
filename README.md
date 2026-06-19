@@ -43,7 +43,11 @@ using a simple `.env` configuration.
 
 # Demo
 
+![Swagger Demo](docs/sample-data.png)
 ![Swagger Demo](docs/swagger-demo.png)
+
+![Swagger Demo](docs/sample-data-xlsx.png)
+![Swagger Demo](docs/swagger-demo-xlsx.png)
 
 ---
 
